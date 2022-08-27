@@ -80,17 +80,18 @@ class DBAdmin {
     print(res);
   }
 
-  updateTask() async {
+  Future<int> updateTask(TaskModel taskModel) async {
     Database? db = await checkDatabase();
     int res = await db!.update(
       "TASK",
       {
-        "title": "Ir al cine",
-        "description": "Es el viernes en la tarde",
-        "status" : "false",
+        "title": taskModel.title,
+        "description": taskModel.description,
+        "status" : taskModel.status
       },
-      where: "id = 2"
+      where: "id = ${taskModel.id}"
     );
+    return res;
   }
 
   deleteRawTask() async{

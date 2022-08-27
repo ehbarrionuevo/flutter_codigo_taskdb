@@ -3,7 +3,9 @@ import 'package:flutter_codigo_taskdb/db/db_admin.dart';
 import 'package:flutter_codigo_taskdb/models/task_model.dart';
 
 class MyFormWidget extends StatefulWidget {
-  const MyFormWidget({Key? key}) : super(key: key);
+
+  TaskModel? taskModel;
+  MyFormWidget({this.taskModel});
 
   @override
   State<MyFormWidget> createState() => _MyFormWidgetState();
@@ -17,40 +19,80 @@ class _MyFormWidgetState extends State<MyFormWidget> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  addTask() {
+  @override
+  initState(){
+    super.initState();
+    if(widget.taskModel != null){
+      _titleController.text = widget.taskModel!.title;
+      _descriptionController.text = widget.taskModel!.description;
+      isFinished = widget.taskModel!.status == "true";
+    }
+  }
 
+
+  saveTask() {
     if(_formKey.currentState!.validate()){
       TaskModel taskModel = TaskModel(
         title: _titleController.text,
         description: _descriptionController.text,
         status: isFinished.toString(),
       );
-      DBAdmin.db.insertTask(taskModel).then((value){
-        if(value > 0){
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.indigo,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
+      if(widget.taskModel == null){
+        DBAdmin.db.insertTask(taskModel).then((value){
+          if(value > 0){
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Colors.indigo,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                duration: const Duration(milliseconds: 1400),
+                content: Row(
+                  children: const [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Text(
+                      "Tarea registrada con éxito",
+                    ),
+                  ],
+                ),
               ),
-              duration: const Duration(milliseconds: 1400),
-              content: Row(
-                children: const [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(
-                    width: 10.0,
-                  ),
-                  Text(
-                    "Tarea registrada con éxito",
-                  ),
-                ],
+            );
+          }
+        });
+      }else{
+        taskModel.id = widget.taskModel!.id!;
+        DBAdmin.db.updateTask(taskModel).then((value){
+          if(value > 0){
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Colors.indigo,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                duration: const Duration(milliseconds: 1400),
+                content: Row(
+                  children: const [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Text(
+                      "Tarea registrada con éxito",
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        }
-      });
+            );
+          }
+        });
+      }
     }
 
   }
@@ -134,7 +176,7 @@ class _MyFormWidgetState extends State<MyFormWidget> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    addTask();
+                    saveTask();
 
                   },
                   child: Text(

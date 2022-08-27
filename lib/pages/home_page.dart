@@ -10,6 +10,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  TaskModel? taskModel;
+
   Future<String> getFullName() async {
     return "Juan Manuel";
   }
@@ -18,7 +20,9 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return MyFormWidget();
+        return MyFormWidget(
+          taskModel: taskModel,
+        );
       },
     ).then((value) {
       setState(() {});
@@ -53,6 +57,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          taskModel = null;
           showDialogForm();
         },
         child: const Icon(Icons.add),
@@ -83,6 +88,7 @@ class _HomePageState extends State<HomePage> {
                     subtitle: Text(myTasks[index].description),
                     trailing: IconButton(
                       onPressed: (){
+                        taskModel = myTasks[index];
                         showDialogForm();
                       },
                       icon: Icon(Icons.edit),
